@@ -1,0 +1,11 @@
+In file included from tplib/tplib/tpl.h:28:0,
+                 from tplib/tplib.h:8,
+                 from test.cpp:1:
+tplib/tplib/tpl.cpp: In function 'double tplib::Rand()':
+tplib/tplib/tpl.cpp:6:90: error: 'Assert' was not declared in this scope
+  Assert(RAND_MAX == 32767, "rand() setting is different, please do not use this function");
+                                                                                          ^
+test.cpp: At global scope:
+test.cpp:4:7: error: expected nested-name-specifier before 'namesapce'
+ using namesapce tplib;
+       ^~~~~~~~~
