@@ -31,6 +31,13 @@ namespace tplib{
 		#ifdef TPIMPORT_QUEUE
 			#include "queue/queue.h"
 		#endif
+    
+    //String library
+    
+        //string
+        #ifdef TPIMPORT_STRING
+            #include "string/string.h"
+        #endif
 	
 	//Math library
 	
