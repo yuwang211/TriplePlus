@@ -1,8 +1,7 @@
 #ifndef _TPLIB_SIGNAL_SIGNAL_SIGNAL_FILE_CPP__
 #define _TPLIB_SIGNAL_SIGNAL_SIGNAL_FILE_CPP__
 
-template <typename T>
-int Signal<T>::getWavSize(std::string fn) const
+int SignalProc::getWavSize(std::string fn)
 {
 	FILE *infile;
 	infile = fopen(fn.c_str(), "rb");
@@ -28,8 +27,7 @@ int Signal<T>::getWavSize(std::string fn) const
 	return len;
 }
 
-template <typename T>
-void Signal<T>::printWavInfo(std::string fn) const
+void SignalProc::printWavInfo(std::string fn)
 {
 	FILE *infile;
 	infile = fopen(fn.c_str(), "rb");
@@ -67,7 +65,7 @@ void Signal<T>::printWavInfo(std::string fn) const
 }
 
 template <typename T>
-bool Signal<T>::loadWav(T &s, std::string fn, int &N) const
+bool SignalProc::loadWav(T &s, std::string fn, int &N)
 {
 	FILE *infile;
 	infile = fopen(fn.c_str(), "rb");
@@ -110,7 +108,7 @@ bool Signal<T>::loadWav(T &s, std::string fn, int &N) const
 }
 
 template <typename T>
-void Signal<T>::saveWav(const T &s, std::string fn, int N) const
+void SignalProc::saveWav(const T &s, std::string fn, int N)
 {
 	int len = N;
 	int formatTag = 1;
@@ -148,27 +146,23 @@ void Signal<T>::saveWav(const T &s, std::string fn, int N) const
 	delete []data;
 }
 
-template <typename T>
-int Signal<T>::ByteToInt2(BYTE c0, BYTE c1)
+int SignalProc::ByteToInt2(BYTE c0, BYTE c1)
 {
 	return c0 + (c1 << 8);
 }
 
-template <typename T>
-int Signal<T>::ByteToInt4(BYTE c0, BYTE c1, BYTE c2, BYTE c3)
+int SignalProc::ByteToInt4(BYTE c0, BYTE c1, BYTE c2, BYTE c3)
 {
 	return c0 + (c1 << 8) + (c2 << 16) + (c3 << 24);
 }
 
-template <typename T>
-void Signal<T>::Int2ToByte(BYTE &c0, BYTE &c1, int x)
+void SignalProc::Int2ToByte(BYTE &c0, BYTE &c1, int x)
 {
 	c0 = (BYTE)((x >> 0) & 0xFF);
 	c1 = (BYTE)((x >> 8) & 0xFF);
 }
 
-template <typename T>
-void Signal<T>::Int4ToByte(BYTE &c0, BYTE &c1, BYTE &c2, BYTE &c3, int x)
+void SignalProc::Int4ToByte(BYTE &c0, BYTE &c1, BYTE &c2, BYTE &c3, int x)
 {
 	c0 = (BYTE)((x >> 0) & 0xFF);
 	c1 = (BYTE)((x >> 8) & 0xFF);

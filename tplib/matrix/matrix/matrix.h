@@ -56,8 +56,8 @@ class Matrix{
 		double trace() const;
 		
 		Matrix transpose() const;
-		Matrix Inverse() const;
-		bool Invertible(Matrix &m) const;
+		Matrix inverse() const;
+		bool invertible(Matrix &m) const;
 		Matrix submatrix(int x0, int y0, int x1, int y1) const;
 		
 		double max() const;

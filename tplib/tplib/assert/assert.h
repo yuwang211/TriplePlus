@@ -25,7 +25,6 @@ std::cerr << "Warning: " << #exp << "\n" \
 << "Message: " << message << "\n" \
 << "line: " << __LINE__ << "\n" \
 << "file: " << __FILE__ << "\n"; \
-exit(EXIT_FAILURE); \
 } \
 }
 #else

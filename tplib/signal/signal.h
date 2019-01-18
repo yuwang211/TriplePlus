@@ -3,6 +3,6 @@
 
 #include <cmath>
 
-#include "signal/signal.h"
+#include "signal/signalproc.h"
 
 #endif

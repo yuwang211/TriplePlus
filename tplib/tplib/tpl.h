@@ -4,7 +4,7 @@
 //debug
 #include "assert/assert.h"
 
-//contant
+//constant
 const double PI = 3.14159265358979;
 
 //Type definiation

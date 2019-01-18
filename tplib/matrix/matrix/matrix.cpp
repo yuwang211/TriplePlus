@@ -411,7 +411,7 @@ Matrix Matrix::transpose() const
 	return ret;
 }
 
-Matrix Matrix::Inverse() const
+Matrix Matrix::inverse() const
 {
 	Assert(row == col, "matrix size not matched");
 	Debug(Matrix tmp);
@@ -422,7 +422,7 @@ Matrix Matrix::Inverse() const
 	return ret;
 }
 
-bool Matrix::Invertible(Matrix &m) const
+bool Matrix::invertible(Matrix &m) const
 {
 	Matrix tmp(*this);
 	m = Identity(row);

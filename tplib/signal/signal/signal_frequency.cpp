@@ -2,9 +2,8 @@
 #define _TPLIB_SIGNAL_SIGNAL_SIGNAL_FREQUENCY_CPP__
 
 
-template <typename T>
-template <typename T2>
-void Signal<T>::getFrequencyDomain(const T &src, T2 &dst, int N, int mode) const
+template <typename T, typename T2>
+void SignalProc::getFrequencyDomain(const T &src, T2 &dst, int N, int mode)
 {
 	for (int i = 0; i < N; ++i) dst[Bit::inverse(i, Bit::position(N))] = src[i];
 	for (int i = 2; i <= N; i <<= 1)
@@ -26,12 +25,18 @@ void Signal<T>::getFrequencyDomain(const T &src, T2 &dst, int N, int mode) const
 	}
 }
 
-template <typename T>
-template <typename T2>
-void Signal<T>::getEnergy(const T2 &src, T &dst, int N) const
+template <typename T,typename T2>
+void SignalProc::getWeight(const T2 &src, T &dst, int N)
+{
+    for (int i = 0; i < N; ++i)
+        dst[i] = src[i].modulus();
+}
+
+template <typename T,typename T2>
+void SignalProc::getEnergy(const T2 &src, T &dst, int N)
 {
 	for (int i = 0; i < N; ++i)
-		dst[i] = src[i].modulus();
+		dst[i] = Sqr(src[i].modulus());
 }
 
 
