@@ -18,7 +18,7 @@ int main()
     
     double l;
     Matrix lambda, v;
-    s.eigen(lambda, v);
+    s.evd(lambda, v);
     for (int i = 0; i < lambda.col; ++i)
         printf("%.2lf ", lambda[0][i]);
     printf("\n");
@@ -28,5 +28,54 @@ int main()
             printf("%.2lf ", v[i][j]);
         printf("\n");
     }
+    printf("\n\n");
+    Matrix x = v * Matrix::Diag(lambda) * v.transpose();
+    for (int i = 0; i < x.row; ++i)
+    {
+        for (int j = 0; j < x.col; ++j)
+            printf("%.2lf ", x[i][j]);
+        printf("\n");
+    }
+    printf("\n\n");
+    
+    
+    Matrix t = Matrix::Make(3, 2,
+                            {
+                                0, 1,
+                                1, 1,
+                                1, 0
+                            });
+    Matrix u, sigma;
+    t.svd(u, sigma, v);
+    for (int i = 0; i < u.row; ++i)
+    {
+        for (int j = 0; j < u.col; ++j)
+            printf("%.2lf ", u[i][j]);
+        printf("\n");
+    }
     printf("\n");
+    for (int i = 0; i < sigma.row; ++i)
+    {
+        for (int j = 0; j < sigma.col; ++j)
+            printf("%.2lf ", sigma[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+    for (int i = 0; i < v.row; ++i)
+    {
+        for (int j = 0; j < v.col; ++j)
+            printf("%.2lf ", v[i][j]);
+        printf("\n");
+    }
+    printf("\n\n");
+    
+    x = u * sigma * v.transpose();
+    for (int i = 0; i < x.row; ++i)
+    {
+        for (int j = 0; j < x.col; ++j)
+            printf("%.2lf ", x[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+    
 }

@@ -32,6 +32,7 @@ class Matrix{
 		static Matrix Zero(int r, int c);
 		static Matrix Identity(int n);
 		static Matrix Random(int n, int m);
+        static Matrix Diag(const Matrix &m);
 		
 		void update();
 		
@@ -73,9 +74,12 @@ class Matrix{
     
         double norm(double p) const;
     
+        bool symmetric() const;
         void eigen_greatest(double &lambda, Matrix &v) const;
         void eigen_nearest(double miu, double &lambda, Matrix &v) const;
-        void eigen(Matrix &lambda, Matrix &v) const;
+        void evd(Matrix &lambda, Matrix &v) const;
+    
+        void svd(Matrix &u, Matrix &sigma, Matrix &v) const;
 		
 		Matrix func(Func0 f) const;
 		Matrix func(Func1 f) const;

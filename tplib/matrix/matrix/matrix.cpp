@@ -149,6 +149,25 @@ Matrix Matrix::Random(int n, int m)
 	return ret;
 }
 
+Matrix Matrix::Diag(const Matrix &m)
+{
+    Assert(m.col == 1 || m.row == 1, "not a vector");
+    if (m.col == 1)
+    {
+        Matrix ret(m.row, m.row);
+        for (int i = 0; i < m.row; ++i)
+            ret[i][i] = m[i][0];
+        return ret;
+    }
+    else
+    {
+        Matrix ret(m.col, m.col);
+        for (int i = 0; i < m.col; ++i)
+            ret[i][i] = m[0][i];
+        return ret;
+    }
+}
+
 inline void Matrix::update()
 {
 	makeonly();
@@ -535,6 +554,15 @@ double Matrix::norm(double p) const
     return pow(t, 1.0 / p);
 }
 
+bool Matrix::symmetric() const
+{
+    if (row != col) return false;
+    for (int i = 0; i < row; ++i)
+        for (int j = i + 1; j < col; ++j)
+            if ((*index)[i][j] != (*index)[j][i]) return false;
+    return true;
+}
+
 void Matrix::eigen_greatest(double &lambda0, Matrix &v) const
 {
     Assert(row == col, "eigen calculation must be on a square matrix");
@@ -575,9 +603,9 @@ void Matrix::eigen_nearest(double miu, double &lambda, Matrix &v) const
     lambda = b[0][0] / v[0][0];
 }
 
-void Matrix::eigen(Matrix &lambda, Matrix &v) const
+void Matrix::evd(Matrix &lambda, Matrix &v) const
 {
-    Assert(row == col, "eigen calculation must be on a square matrix");
+    Assert(symmetric(), "eigen calculation must be on a symmetric matrix");
     Matrix S(*this);
     Matrix E = Matrix::Identity(row);
     int n = row;
@@ -639,6 +667,19 @@ void Matrix::eigen(Matrix &lambda, Matrix &v) const
         for (int j = 0; j < n; ++j)
             Swap(v[j][k], v[j][i]);
     }
+}
+
+
+void Matrix::svd(Matrix &u, Matrix &sigma, Matrix &v) const
+{
+    Matrix a = (*this) * (*this).transpose();
+    Matrix tmp;
+    a.evd(tmp, u);
+    a = (*this).transpose() * (*this);
+    a.evd(tmp, v);
+    sigma = Matrix::Zero(row, col);
+    for (int i = Min(row, col) - 1; i >= 0; --i)
+        sigma[i][i] = sqrt(tmp[0][i]);
 }
 
 Matrix Matrix::func(Func0 f) const
