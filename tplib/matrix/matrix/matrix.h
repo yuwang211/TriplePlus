@@ -27,7 +27,7 @@ class Matrix{
 		
 		Matrix& operator=(const Matrix &m);
 	
-		static Matrix Make(int r, int c, ...);
+        static Matrix Make(int r, int c, std::initializer_list<double> il);
 	
 		static Matrix Zero(int r, int c);
 		static Matrix Identity(int n);
@@ -63,12 +63,19 @@ class Matrix{
 		double max() const;
 		double min() const;
 		double sum() const;
+        double sumabs() const;
 		double mean() const;
 		
 		double var() const;
 		double std() const;
 		
 		Matrix prefixsum() const;
+    
+        double norm(double p) const;
+    
+        void eigen_greatest(double &lambda, Matrix &v) const;
+        void eigen_nearest(double miu, double &lambda, Matrix &v) const;
+        void eigen(Matrix &lambda, Matrix &v) const;
 		
 		Matrix func(Func0 f) const;
 		Matrix func(Func1 f) const;
@@ -92,6 +99,9 @@ class Matrix{
 		
 		static const int FAST_MULTIPLE_SIZE = 20;
 		
+        int jacobi_maxind(Matrix &S, int k) const;
+        int jacobi_update(Block<bool> &changed, Matrix &e, int k, double t) const;
+        void jacobi_rotate(Matrix &S, int k, int l, int i, int j, double c, double s) const;
 };
 
 #include "matrix.cpp"

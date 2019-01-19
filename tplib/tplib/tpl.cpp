@@ -12,11 +12,11 @@ template <typename T> T Sqr(const T &arg0) { return arg0 * arg0; }
 
 inline double Rand()
 {
-	Assert(RAND_MAX == 32767, "rand() setting is different, please do not use this function");
-	long long x = (((long long)(rand())) << 37) ^ 
-					(((long long)(rand())) << 30) ^
-					(((long long)(rand())) << 15) ^
-					(((long long)(rand())) <<  0) ^  
+	//Assert(RAND_MAX == 32767, "rand() setting is different, please do not use this function");
+	long long x = (((long long)(rand() & 32767)) << 37) ^
+					(((long long)(rand() & 32767)) << 30) ^
+					(((long long)(rand() & 32767)) << 15) ^
+					(((long long)(rand() & 32767)) <<  0) ^
 					0x3ff0000000000000LL;
 	return *((double *)(&x)) - 1;
 }

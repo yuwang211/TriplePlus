@@ -110,17 +110,14 @@ Matrix& Matrix::operator=(const Matrix &m)
 	return *this;
 }
 
-Matrix Matrix::Make(int r, int c, ...)
+Matrix Matrix::Make(int r, int c, std::initializer_list<double> il)
 {
 	int count = r * c;
-	printf("count = %d\n", count);
 	Matrix ret(r, c);
-	va_list ap;
-	va_start(ap, c);
+    auto it = il.begin();
 	for (int i = 0; i < r; ++i)
 		for (int j = 0; j < c; ++j)
-			ret[i][j] = va_arg(ap, double);
-	va_end(ap);
+			ret[i][j] = *(it++);
 	return ret;
 }
 
@@ -145,7 +142,7 @@ Matrix Matrix::Random(int n, int m)
 {
 	Matrix ret(n, m);
 	double *d = ret.num->begin();
-	for (int i = n * m; i > 0; --i)
+	while (d != ret.num->end())
 	{
 		(*(d++)) = Rand();
 	}
@@ -165,7 +162,7 @@ inline double* Matrix::operator[] (int k)
 
 inline double& Matrix::elem(int x, int y)
 {
-	Assert(0 <= x < row && 0 <= y < col, "matrix index exceeded");
+	Assert(0 <= x && x < row && 0 <= y && y < col, "matrix index exceeded");
 	Assert(!uc.makeonly(), "please use update() before modify this matrix");
 	return (*index)[x][y];
 }
@@ -415,7 +412,7 @@ Matrix Matrix::inverse() const
 {
 	Assert(row == col, "matrix size not matched");
 	Debug(Matrix tmp);
-	Assert((*this).Invertible(tmp), "matrix is not invertible");
+	Assert((*this).invertible(tmp), "matrix is not invertible");
 	Matrix m(*this);
 	Matrix ret(Matrix::Identity(row));
 	m.gauss(ret, GAUSS_UNIT);
@@ -465,6 +462,15 @@ double Matrix::sum() const
 	for (int j = 0; j < col; ++j)
 		ret += (*index)[i][j];
 	return ret;
+}
+
+double Matrix::sumabs() const
+{
+    double ret = 0;
+    for (int i = 0; i < row; ++i)
+        for (int j = 0; j < col; ++j)
+            ret += fabs((*index)[i][j]);
+    return ret;
 }
 
 double Matrix::mean() const
@@ -520,6 +526,121 @@ Matrix Matrix::prefixsum() const
 	return ret;
 }
 
+double Matrix::norm(double p) const
+{
+    double t = 0;
+    for (int i = 0; i < row; ++i)
+        for (int j = 0; j < col; ++j)
+            t += pow(fabs((*index)[i][j]), p);
+    return pow(t, 1.0 / p);
+}
+
+void Matrix::eigen_greatest(double &lambda0, Matrix &v) const
+{
+    Assert(row == col, "eigen calculation must be on a square matrix");
+    v = Matrix::Random(row, 1);
+    Matrix b = (*this) * v;
+    double k = b.norm(2) * Sgn(b[0][0]);
+    b = b * (1.0 / k);
+    while ((b - v).sumabs() > EPS)
+    {
+        v = b;
+        b = (*this) * v;
+        k = b.norm(2) * Sgn(b[0][0]);
+        b = b * (1.0 / k);
+    }
+    v = b;
+    b = (*this) * v;
+    lambda0 = b[0][0] / v[0][0];
+}
+
+
+void Matrix::eigen_nearest(double miu, double &lambda, Matrix &v) const
+{
+    Assert(row == col, "eigen calculation must be on a square matrix");
+    v = Matrix::Random(row, 1);
+    Matrix a2 = ((*this) - miu * Matrix::Identity(row)).inverse();
+    Matrix b = a2 * v;
+    double k = b.norm(2) * Sgn(b[0][0]);
+    b = b * (1.0 / k);
+    while ((b - v).sumabs() > EPS)
+    {
+        v = b;
+        b = a2 * v;
+        k = b.norm(2) * Sgn(b[0][0]);;
+        b = b * (1.0 / k);
+    }
+    v = b;
+    b = (*this) * v;
+    lambda = b[0][0] / v[0][0];
+}
+
+void Matrix::eigen(Matrix &lambda, Matrix &v) const
+{
+    Assert(row == col, "eigen calculation must be on a square matrix");
+    Matrix S(*this);
+    Matrix E = Matrix::Identity(row);
+    int n = row;
+    int state = n;
+    Block<int> ind(n);
+    Matrix e(n, 1);
+    Block<bool> changed(n);
+    for (int k = 0; k < n; ++k)
+    {
+        ind[k] = jacobi_maxind(S, k);
+        e[k][0] = S[k][k];
+        changed[k] = true;
+    }
+    while (state != 0)
+    {
+        double p, y, d, r, c, s, t;
+        int k, l;
+        int m = 0;
+        for (k = 1; k < n - 1; ++k)
+            if (fabs(S[k][ind[k]]) > fabs(S[m][ind[m]])) m = k;
+        k = m;
+        l = ind[m];
+        p = S[k][l];
+        y = (e[l][0] - e[k][0]) * 0.5;
+        d = fabs(y) + sqrt(p * p + y * y);
+        r = sqrt(p * p + d * d);
+        c = d / r;
+        s = p / r;
+        t = p * p / d;
+        if (y < 0)
+        {
+            s = -s;
+            t = -t;
+        }
+        S[k][l] = 0.0;
+        state += jacobi_update(changed, e, k, -t);
+        state += jacobi_update(changed, e, l, t);
+        for (int i = 0; i < k; ++i)
+            jacobi_rotate(S, i, k, i, l, c, s);
+        for (int i = k + 1; i < l; ++i)
+            jacobi_rotate(S, k, i, i, l, c, s);
+        for (int i = l + 1; i < n; ++i)
+            jacobi_rotate(S, k, i, l, i, c, s);
+        for (int i = 0; i < n; ++i)
+            jacobi_rotate(E, i, k, i, l, c, s);
+        ind[k] = jacobi_maxind(S, k);
+        ind[l] = jacobi_maxind(S, l);
+    }
+    lambda = e.transpose();
+    v = E;
+    
+    for (int i = 0; i < n; ++i)
+    {
+        int k = i;
+        for (int j = i + 1; j < n; ++j)
+            if (lambda[0][j] > lambda[0][k])
+                k = j;
+        Swap(lambda[0][k], lambda[0][i]);
+        for (int j = 0; j < n; ++j)
+            Swap(v[j][k], v[j][i]);
+    }
+}
+
 Matrix Matrix::func(Func0 f) const
 {
 	Matrix ret(*this);
@@ -561,4 +682,36 @@ Matrix Matrix::func(Func3 f) const
 			++d;
 		}
 	return ret;
+}
+
+int Matrix::jacobi_maxind(Matrix &S, int k) const
+{
+    int m = k + 1;
+    for (int i = k + 2; i < row; ++i)
+        if (fabs(S[k][i]) > fabs(S[k][m])) m = i;
+    return m;
+}
+
+int Matrix::jacobi_update(Block<bool> &changed, Matrix &e, int k, double t) const
+{
+    e[k][0] += t;
+    if (changed[k] && fabs(t) < EPS)
+    {
+        changed[k] = false;
+        return -1;
+    }
+    else if (!changed[k] && fabs(t) > EPS)
+    {
+        changed[k] = true;
+        return 1;
+    }
+    else return 0;
+}
+
+void Matrix::jacobi_rotate(Matrix &S, int k, int l, int i, int j, double c, double s) const
+{
+    double s0 = c * S[k][l] - s * S[i][j];
+    double s1 = s * S[k][l] + c * S[i][j];
+    S[k][l] = s0;
+    S[i][j] = s1;
 }
